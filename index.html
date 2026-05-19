@@ -1,0 +1,1996 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KING SHOT 付费逻辑与礼包体系 · 时间轴</title>
+  <style>
+    :root {
+      --bg: #f5f1e6;
+      --bg-soft: #fbf6e9;
+      --panel: #ffffff;
+      --panel-soft: #fdf6e3;
+      --line: #e3d6b3;
+      --line-strong: #c8b783;
+      --text: #322a1a;
+      --text-soft: #5a4d2f;
+      --muted: #877552;
+      --muted-2: #b09a6c;
+      --brand: #d97706;
+      --brand-soft: #f4b860;
+      --header-bg: #d9b070;
+      --header-bg-strong: #c89a52;
+      --row-alt: #fbf3df;
+      --row-band: #efe4c7;
+      --today: rgba(94, 200, 199, 0.35);
+      --shadow: 0 8px 22px rgba(80, 60, 20, 0.10);
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --bar-h: 30px;
+      --row-h: 44px;
+      --label-w: 200px;
+      --col-w: 56px;
+      --bar-yellow-1: #ffd874;
+      --bar-yellow-2: #f6b53a;
+      --bar-orange-1: #ffb15a;
+      --bar-orange-2: #f08236;
+      --bar-blue-1: #6fc4ff;
+      --bar-blue-2: #2d83d6;
+      --bar-green-1: #8ee07c;
+      --bar-green-2: #4ba33a;
+      --bar-purple-1: #c69bff;
+      --bar-purple-2: #8a4ed3;
+      --bar-red-1: #ff7a6a;
+      --bar-red-2: #c93020;
+      --bar-teal-1: #8de4d4;
+      --bar-teal-2: #2da897;
+      --bar-white-1: #f0ece0;
+      --bar-white-2: #c4b990;
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(244, 184, 96, 0.22), transparent 38%),
+        radial-gradient(circle at 90% 8%, rgba(45, 168, 151, 0.10), transparent 36%),
+        var(--bg);
+    }
+
+    button { cursor: pointer; font: inherit; color: inherit; }
+
+    .app-shell {
+      width: min(1480px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding: 16px 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: -0.01em;
+    }
+
+    .topbar .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .legend-item, .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel-soft);
+      color: var(--text-soft);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 10px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, var(--bar-yellow-1), var(--bar-yellow-2));
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .swatch-white  { background: linear-gradient(180deg, var(--bar-white-1),  var(--bar-white-2));  border: 1px solid #b09a6c; }
+    .swatch-green  { background: linear-gradient(180deg, var(--bar-green-1),  var(--bar-green-2)); }
+    .swatch-yellow { background: linear-gradient(180deg, var(--bar-yellow-1), var(--bar-yellow-2)); }
+    .swatch-orange { background: linear-gradient(180deg, var(--bar-orange-1), var(--bar-orange-2)); }
+    .swatch-red    { background: linear-gradient(180deg, var(--bar-red-1),    var(--bar-red-2)); }
+    .swatch-blue   { background: linear-gradient(180deg, var(--bar-blue-1),   var(--bar-blue-2)); }
+    .swatch-purple { background: linear-gradient(180deg, var(--bar-purple-1), var(--bar-purple-2)); }
+    .swatch-teal   { background: linear-gradient(180deg, var(--bar-teal-1),   var(--bar-teal-2)); }
+
+    /* ======= Gantt 容器 ======= */
+    .gantt-wrap {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .gantt-scroll {
+      overflow: auto;
+      max-height: calc(100vh - 140px);
+      cursor: grab;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .gantt-scroll::-webkit-scrollbar { display: none; }
+    .gantt-scroll.is-dragging {
+      cursor: grabbing;
+      user-select: none;
+    }
+    .gantt-scroll.is-dragging * { pointer-events: none; }
+
+    .gantt {
+      display: grid;
+      grid-template-columns: var(--label-w) 1fr;
+      min-width: calc(var(--label-w) + var(--col-w) * 100);
+    }
+
+    /* —— 顶部日期轴 —— */
+    .gantt-corner {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 6;
+      padding: 10px 14px;
+      background: var(--header-bg);
+      border-right: 1px solid var(--header-bg-strong);
+      border-bottom: 1px solid var(--header-bg-strong);
+      color: #3a2a08;
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .day-axis {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      display: grid;
+      grid-template-columns: repeat(100, var(--col-w));
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--header-bg-strong);
+    }
+
+    .day-cell {
+      height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: #3a2a08;
+      border-right: 1px solid rgba(120, 80, 20, 0.18);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .day-cell strong {
+      font-size: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .day-cell.week-start {
+      border-right-color: rgba(80, 50, 10, 0.32);
+    }
+
+    /* 周末 / 每7天高亮 */
+    .day-cell.is-weekly {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    /* —— 行（左侧标签 + 右侧网格） —— */
+    .row-label {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      height: var(--row-h);
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .row-label .row-icon {
+      width: 22px;
+      height: 22px;
+      flex: none;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #fff;
+      background: var(--bar-orange-2);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .row-grid {
+      position: relative;
+      height: var(--row-h);
+      display: grid;
+      grid-template-columns: repeat(100, var(--col-w));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .row-grid.alt { background: var(--row-alt); }
+
+    .grid-cell {
+      border-right: 1px dashed rgba(160, 130, 70, 0.18);
+    }
+    .grid-cell.week-start { border-right-style: solid; border-right-color: rgba(120, 80, 20, 0.20); }
+
+    /* —— 分组段头 —— */
+    .group-header-label,
+    .group-header-grid {
+      height: 32px;
+      background: linear-gradient(180deg, #f0c777, #e3a94f);
+      border-bottom: 1px solid var(--header-bg-strong);
+      border-top: 1px solid #b78b3d;
+      color: #3a2a08;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .group-header-label {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      border-right: 1px solid var(--header-bg-strong);
+    }
+
+    .group-header-label::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      background: #fff7e0;
+      border-radius: 2px;
+    }
+
+    .group-header-grid {
+      display: grid;
+      grid-template-columns: repeat(100, var(--col-w));
+    }
+
+    /* —— 甘特条 —— */
+    .bar {
+      position: relative;
+      grid-row: 1;
+      align-self: center;
+      height: var(--bar-h);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px 0 8px;
+      border-radius: 4px;
+      color: #2c1f06;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      border: none;
+      text-align: left;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      transition: filter 0.15s ease, transform 0.15s ease;
+      /* 箭头形状 */
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+    }
+
+    .bar:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .bar.color-white  { background: linear-gradient(180deg, var(--bar-white-1), var(--bar-white-2)); color: #3d3520; border: 1.5px dashed #b09a6c; }
+    .bar.color-green  { background: linear-gradient(180deg, var(--bar-green-1),  var(--bar-green-2));  color: #0f2c08; }
+    .bar.color-yellow { background: linear-gradient(180deg, var(--bar-yellow-1), var(--bar-yellow-2)); }
+    .bar.color-orange { background: linear-gradient(180deg, var(--bar-orange-1), var(--bar-orange-2)); color: #2a1a04; }
+    .bar.color-red    { background: linear-gradient(180deg, var(--bar-red-1),    var(--bar-red-2));    color: #fff; }
+    .bar.color-blue   { background: linear-gradient(180deg, var(--bar-blue-1),   var(--bar-blue-2));   color: #08233e; }
+    .bar.color-purple { background: linear-gradient(180deg, var(--bar-purple-1), var(--bar-purple-2)); color: #f5edff; }
+    .bar.color-teal   { background: linear-gradient(180deg, var(--bar-teal-1),   var(--bar-teal-2));   color: #052420; }
+
+    .bar .bar-icon {
+      width: 22px;
+      height: 22px;
+      flex: none;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b3d04;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+    }
+
+    .bar .bar-days {
+      margin-left: auto;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.55);
+      color: #3a2a08;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    /* —— 浮动“今天”竖条 —— */
+    .today-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: var(--col-w);
+      background: var(--today);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ======= Modal ======= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      background: rgba(40, 30, 15, 0.45);
+      backdrop-filter: blur(6px);
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: min(980px, 100%);
+      max-height: min(90vh, 940px);
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: 22px;
+      background: var(--panel);
+      box-shadow: 0 30px 60px rgba(50, 35, 10, 0.25);
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-soft);
+    }
+    .modal-title-wrap { display: grid; gap: 10px; }
+    .modal-title {
+      margin: 0;
+      font-size: clamp(20px, 2.4vw, 28px);
+      letter-spacing: -0.02em;
+    }
+    .close-btn {
+      flex: none;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--panel);
+      font-size: 22px;
+      line-height: 1;
+    }
+    .close-btn:hover { border-color: #b91c1c; color: #b91c1c; }
+    .modal-body {
+      display: grid;
+      grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+      gap: 18px;
+      max-height: calc(min(90vh, 940px) - 104px);
+      overflow: auto;
+      padding: 20px 22px 24px;
+    }
+    .modal-body.no-gallery { grid-template-columns: 1fr; }
+
+    .gallery {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      padding-right: 14px; /* 预留给堆叠旋转的边距，避免压右文 */
+    }
+    .gallery-card {
+      position: relative;
+      width: 100%;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #1f1a12;
+      cursor: zoom-in;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: block;
+    }
+    .gallery-card img {
+      display: block;
+      width: 100%;
+      max-height: min(72vh, 760px);
+      height: auto;
+      object-fit: contain;
+    }
+    .gallery-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(80, 50, 10, 0.18);
+    }
+
+    .gallery-stack {
+      position: relative;
+      width: 100%;
+      cursor: zoom-in;
+      padding: 0;
+      background: none;
+      border: 0;
+      display: block;
+    }
+    .gallery-stack .stack-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #1f1a12;
+      box-shadow: 0 6px 18px rgba(80, 50, 10, 0.15);
+      transform-origin: center bottom;
+      transition: transform 0.25s ease;
+    }
+    .gallery-stack .stack-card img {
+      display: block;
+      width: 100%;
+      max-height: min(68vh, 720px);
+      height: auto;
+      object-fit: contain;
+    }
+    .gallery-stack .stack-card.s-front {
+      position: relative;
+      z-index: 3;
+    }
+    .gallery-stack .stack-card.s-back-1,
+    .gallery-stack .stack-card.s-back-2 {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .gallery-stack .stack-card.s-back-2 {
+      transform: translate(8px, 8px) rotate(2.5deg);
+      filter: brightness(0.9);
+      z-index: 1;
+    }
+    .gallery-stack .stack-card.s-back-1 {
+      transform: translate(4px, 4px) rotate(1.5deg);
+      filter: brightness(0.95);
+      z-index: 2;
+    }
+    .gallery-stack:hover .stack-card.s-back-2 {
+      transform: translate(12px, 12px) rotate(4deg);
+    }
+    .gallery-stack:hover .stack-card.s-back-1 {
+      transform: translate(6px, 6px) rotate(2.5deg);
+    }
+    .gallery-stack .stack-badge {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 4;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .gallery-hint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11.5px;
+      letter-spacing: 0.02em;
+    }
+
+    .info-col { display: grid; gap: 12px; align-content: start; }
+
+    .detail-box {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--panel-soft);
+    }
+    .detail-box h4 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #92400e;
+      letter-spacing: 0.02em;
+    }
+    .detail-box p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.75;
+      white-space: pre-line;
+    }
+    .item-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .item-list li {
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--bg-soft);
+      color: var(--text-soft);
+      font-size: 12px;
+    }
+
+    .note-box {
+      padding: 14px 16px;
+      border: 1.5px dashed #d4a855;
+      border-radius: var(--radius-md);
+      background: #fffbf0;
+    }
+    .note-box h4 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #b45309;
+      letter-spacing: 0.02em;
+    }
+    .note-box p {
+      margin: 0;
+      color: #78716c;
+      font-size: 13px;
+      line-height: 1.75;
+      white-space: pre-line;
+      font-style: italic;
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr 1fr;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      font-size: 12.5px;
+    }
+    .level-grid-head {
+      display: contents;
+    }
+    .level-grid-head > span {
+      padding: 6px 10px;
+      background: var(--row-band);
+      color: var(--text-soft);
+      font-weight: 600;
+      font-size: 11.5px;
+      letter-spacing: 0.03em;
+    }
+    .level-grid-row {
+      display: contents;
+    }
+    .level-grid-row > span {
+      padding: 5px 10px;
+      border-top: 1px solid var(--line);
+      color: var(--text);
+    }
+    .level-grid-row:nth-child(odd) > span {
+      background: var(--bg-soft);
+    }
+    .level-grid-row > span:last-child {
+      color: #b45309;
+      font-weight: 600;
+    }
+
+    /* ===== Lightbox ===== */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      background: rgba(10, 8, 4, 0.9);
+    }
+    .lightbox.open { display: block; }
+    .lightbox-stage {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+    .lightbox-stage.is-dragging { cursor: grabbing; }
+    .lightbox-img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: auto;
+      height: auto;
+      max-width: 88vw;
+      max-height: 84vh;
+      transform: translate(-50%, -50%) scale(1);
+      transform-origin: center center;
+      will-change: transform;
+      pointer-events: none;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+      border-radius: 6px;
+    }
+    .lightbox-toolbar {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      gap: 8px;
+      z-index: 2;
+    }
+    .lightbox-toolbar button,
+    .lightbox-nav button {
+      min-width: 38px;
+      height: 38px;
+      padding: 0 12px;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 14px;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+    }
+    .lightbox-toolbar button:hover,
+    .lightbox-nav button:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+    .lightbox-counter {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 2;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.10);
+      color: #fff;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(8px);
+    }
+    .lightbox-nav {
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 2;
+    }
+    .lightbox-nav[hidden] { display: none; }
+    .lightbox-hint {
+      position: absolute;
+      bottom: 22px;
+      right: 18px;
+      z-index: 2;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 11.5px;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(8px);
+    }
+
+    /* ===== 图集全屏陈列 ===== */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 180;
+      display: none;
+      background: rgba(10, 8, 4, 0.88);
+      overflow: auto;
+      padding: 70px 40px 60px;
+    }
+    .grid-overlay.open { display: block; }
+    .grid-overlay-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0));
+      color: #fff;
+      z-index: 2;
+    }
+    .grid-overlay-header h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .grid-overlay-header .meta {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      margin-left: 8px;
+    }
+    .grid-overlay-close {
+      min-width: 38px;
+      height: 38px;
+      padding: 0 14px;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 13px;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+    }
+    .grid-overlay-close:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+    .grid-overlay-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 22px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .grid-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: zoom-in;
+    }
+    .grid-cell-image {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 19;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #1f1a12;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .grid-cell:hover .grid-cell-image {
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    .grid-cell-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+    .grid-cell-caption {
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 13px;
+      text-align: center;
+      letter-spacing: 0.02em;
+      word-break: break-all;
+    }
+
+    .footer-note {
+      margin: 14px 4px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 720px) {
+      :root { --label-w: 140px; --col-w: 44px; }
+      .topbar h1 { font-size: 16px; }
+      .modal-body { grid-template-columns: 1fr; }
+      .gallery { padding-right: 0; }
+    }
+
+    /* ===== 付费分层参考行 ===== */
+    .budget-row-cells {
+      height: var(--row-h);
+      display: grid;
+      grid-template-columns: repeat(100, var(--col-w));
+      border-bottom: 1px solid var(--line);
+    }
+    .budget-row-cells.alt { background: var(--row-alt); }
+    .budget-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      border-right: 1px dashed rgba(160, 130, 70, 0.18);
+      color: transparent;
+      line-height: 1;
+    }
+    .budget-cell.week-start { border-right: 1px solid rgba(120, 80, 20, 0.20); }
+    .budget-cell.amt-low  { color: #4ba33a; }
+    .budget-cell.amt-mid  { color: #d97706; }
+    .budget-cell.amt-high { color: #c93020; font-weight: 700; }
+    .budget-cell.amt-huge { color: #8a0000; font-weight: 800; background: rgba(200, 40, 20, 0.08); }
+
+    /* ===== 付费明细气泡 ===== */
+    .budget-tip {
+      position: fixed;
+      z-index: 500;
+      pointer-events: none;
+      display: none;
+      max-width: 240px;
+      background: #251c0d;
+      color: #f5e8c8;
+      border: 1px solid #c8a855;
+      border-radius: 9px;
+      padding: 9px 13px;
+      font-size: 12px;
+      line-height: 1.65;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    }
+    .budget-tip-day {
+      font-weight: 700;
+      color: #f4b860;
+      margin-bottom: 5px;
+      font-size: 12.5px;
+    }
+    .budget-tip-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid rgba(200,168,85,0.15);
+      padding: 1px 0;
+    }
+    .budget-tip-row span:last-child {
+      color: #ffb040;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .budget-tip-total {
+      margin-top: 5px;
+      font-weight: 700;
+      color: #ffd060;
+      text-align: right;
+      font-size: 12.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>KING SHOT · 服务器付费时间轴（D1 - D100）</h1>
+        <p class="subtitle">仿游戏内活动日历的横向甘特视图，每条彩色条代表一个活动 / 礼包，点击查看详情。</p>
+      </div>
+      <div class="legend" aria-label="图例">
+        <span class="legend-item"><span class="legend-swatch swatch-white"></span>无付费活动</span>
+        <span class="legend-item"><span class="legend-swatch swatch-green"></span>低付费</span>
+        <span class="legend-item"><span class="legend-swatch swatch-yellow"></span>一般付费</span>
+        <span class="legend-item"><span class="legend-swatch swatch-orange"></span>高付费</span>
+        <span class="legend-item"><span class="legend-swatch swatch-red"></span>最高付费</span>
+      </div>
+    </header>
+
+    <div class="gantt-wrap">
+      <div class="gantt-scroll">
+        <div id="gantt" class="gantt"></div>
+      </div>
+    </div>
+
+    <p class="footer-note">提示：横向滚动浏览 D1 ~ D100；每 7 天为一个周期分隔。条目数据集中在脚本顶部 <code>seedData</code>，后续可继续扩充。</p>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <article class="modal">
+      <header class="modal-head">
+        <div class="modal-title-wrap">
+          <div id="modalPills" class="legend"></div>
+          <h2 id="modalTitle" class="modal-title">详情</h2>
+        </div>
+        <button id="closeModalBtn" class="close-btn" aria-label="关闭详情">×</button>
+      </header>
+      <div id="modalBody" class="modal-body"></div>
+    </article>
+  </div>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <div class="lightbox-counter" id="lbCounter">1 / 1</div>
+    <div class="lightbox-toolbar">
+      <button type="button" id="lbZoomOut" title="缩小（滚轮向下）">−</button>
+      <button type="button" id="lbReset" title="重置">1:1</button>
+      <button type="button" id="lbZoomIn" title="放大（滚轮向上）">+</button>
+      <button type="button" id="lbClose" title="关闭（Esc）">关闭</button>
+    </div>
+    <div class="lightbox-stage" id="lbStage">
+      <img class="lightbox-img" id="lbImage" alt="" draggable="false" />
+    </div>
+    <div class="lightbox-nav" id="lbNav" hidden>
+      <button type="button" id="lbPrev">◀ 上一张</button>
+      <button type="button" id="lbNext">下一张 ▶</button>
+    </div>
+    <div class="lightbox-hint">滚轮缩放 · 鼠标左键拖拽 · ESC 关闭</div>
+  </div>
+
+  <div id="gridOverlay" class="grid-overlay" aria-hidden="true">
+    <div class="grid-overlay-header">
+      <div><h3 id="goTitle">图集</h3><span class="meta" id="goMeta"></span></div>
+      <button type="button" id="goClose" class="grid-overlay-close">关闭</button>
+    </div>
+    <div class="grid-overlay-grid" id="goGrid"></div>
+  </div>
+
+  <div id="budgetTip" class="budget-tip"></div>
+
+  <script>
+    // ============================================================
+    // 配置
+    // ============================================================
+    const TOTAL_DAYS = 14;
+
+    // 分组顺序与标题
+    const GROUPS = [
+      { id: "vip", title: "VIP 系统 / 长期权益" },
+      { id: "premium", title: "超值活动 / 付费礼包" },
+      { id: "regular", title: "常规活动 / 周期玩法" },
+      { id: "alliance", title: "联盟 & 王国进度" },
+      { id: "system", title: "系统解锁 / 长期养成" },
+      { id: "budget", title: "付费分层参考（D1–D100 理论总消费）" }
+    ];
+
+    // ============================================================
+    // 数据：每条目占一行；color 决定甘特条颜色；icon 是 1-2 个字
+    // 后续主要往这里加内容
+    // ============================================================
+    const seedData = [
+      // —— VIP 系统 / 长期权益 ——
+      {
+        id: "system-vip",
+        group: "vip",
+        title: "VIP 系统（VIP 1-12）",
+        icon: "V",
+        color: "red",
+        startDay: 1,
+        endDay: 100,
+        priority: "高",
+        images: [
+          "礼包库/00VIP/VIP1.jpg",
+          "礼包库/00VIP/VIP2.jpg",
+          "礼包库/00VIP/VIP3.jpg",
+          "礼包库/00VIP/VIP4.jpg",
+          "礼包库/00VIP/VIP5.jpg",
+          "礼包库/00VIP/VIP6.jpg",
+          "礼包库/00VIP/VIP7.jpg",
+          "礼包库/00VIP/VIP8.jpg",
+          "礼包库/00VIP/VIP9.jpg",
+          "礼包库/00VIP/VIP10.jpg",
+          "礼包库/00VIP/VIP11.jpg",
+          "礼包库/00VIP/VIP12.jpg"
+        ],
+        summary: "VIP 是以付费积累 VIP 经验为驱动的长期权益体系（VIP1-12），逐级解锁建造/研究/训练加速、行军速度等永久增益。每级对应一档专属礼包，核心投放是两位 VIP 英雄的碎片——全量购买可将赫尔加与阿玛迪斯均升至满星。",
+        coreItems: [
+          "碎片·赫尔加（兼首充可得）",
+          "碎片·阿玛迪斯（VIP专属）"
+        ],
+        cap: "12 档，R1–R3；各档礼包单价见升级门槛表",
+        note: "对 R1/R2 来说，额外的行军队列是中期最大吸引点；两位绑定英雄，低价档没什么用，高价档又付不起。R3 前期会硬买常规礼包→冲 VIP 等级→购买英雄·阿玛迪斯，这是一个可横跨 gen1–gen5 持续可用的英雄，前期拿到之后对其他人是纯粹的碾压。",
+        levels: [
+          { vip: "VIP 1",  gems: "—",          cny: "—",           packPrice: "¥30" },
+          { vip: "VIP 2",  gems: "5,000",     cny: "≈ ¥60",       packPrice: "¥68" },
+          { vip: "VIP 3",  gems: "15,000",    cny: "≈ ¥180",      packPrice: "¥128" },
+          { vip: "VIP 4",  gems: "40,000",    cny: "≈ ¥480",      packPrice: "¥328" },
+          { vip: "VIP 5",  gems: "100,000",   cny: "≈ ¥1,200",    packPrice: "¥648" },
+          { vip: "VIP 6",  gems: "180,000",   cny: "≈ ¥2,160",    packPrice: "¥648" },
+          { vip: "VIP 7",  gems: "300,000",   cny: "≈ ¥3,600",    packPrice: "¥128" },
+          { vip: "VIP 8",  gems: "500,000",   cny: "≈ ¥6,000",    packPrice: "¥328" },
+          { vip: "VIP 9",  gems: "1,200,000", cny: "≈ ¥14,400",   packPrice: "¥328" },
+          { vip: "VIP 10", gems: "2,400,000", cny: "≈ ¥28,800",   packPrice: "¥328" },
+          { vip: "VIP 11", gems: "4,800,000", cny: "≈ ¥57,600",   packPrice: "¥648" },
+          { vip: "VIP 12", gems: "9,600,000", cny: "≈ ¥115,200",  packPrice: "¥648" }
+        ],
+        note: "对 R1/R2 来说，額外的行军队列是中期最大吸引点；两位绑定英雄低价档没什么用，高价档又付不起。R3 前期会硬买常规礼包→冲 VIP 等级→购买英雄·阿玛迪斯，这是一个可横跨 gen1–gen5 持续可用的英雄，前期拿到之后对其他人是纯粹的碾压。"
+      },
+
+      // —— 超值活动 / 付费礼包 ——
+      {
+        id: "pack-first-purchase",
+        group: "premium",
+        title: "首充",
+        icon: "首",
+        color: "green",
+        startDay: 1,
+        endDay: 100,
+        priority: "高",
+        images: ["礼包库/02首充/首充1.jpg"],
+        summary: "首次任意金额付费即触发，赠送 SSR 英雄『赫尔加』+ 关键养成资源，承担首付转化与英雄破冰双重任务。",
+        coreItems: [
+          "SSR英雄·赫尔加",
+          "英雄碎片",
+          "钻石",
+          "加速",
+          "技能书",
+          "钥匙"
+        ],
+        cap: "1 档，R0→R1 首充转化，任意金额触发，¥6 起，终生限购 1 次",
+        note: "对付费玩家来说，赫尔加是第一个橙色英雄，比签到英雄来得快；而且和新手助力礼包捆绑展示，玩家一次消费等于贡献两份收入。"
+      },
+      {
+        id: "pack-builder-queue",
+        group: "premium",
+        title: "新手助力礼包",
+        icon: "助",
+        color: "green",
+        startDay: 1,
+        endDay: 100,
+        priority: "高",
+        images: ["礼包库/01新手助力礼包/新手助力礼包1.jpg"],
+        summary: "新服储值中心首屏的低门槛破冰礼包，主打『永久解锁第二建造队列』功能性卖点，¥6 即可解锁，终生限购 1 次。",
+        coreItems: [
+          "第二建造队列（永久）",
+          "钻石",
+          "建造加速",
+          "金券"
+        ],
+        cap: "1 档，R1，¥6，终生限购 1 次",
+        note: "¥6 解锁建筑速度翻倍，过了新手引导期之后这就是刚需，几乎没有理由不买。"
+      },
+      {
+        id: "pack-march-queue",
+        group: "premium",
+        title: "行军队列礼包",
+        icon: "军",
+        color: "green",
+        startDay: 1,
+        endDay: 100,
+        priority: "高",
+        images: ["礼包库/03行军列队礼包/行军列队礼包.jpg"],
+        summary: "储值中心常驻 Tab，与『新手助力礼包』并列展示的功能型礼包。¥22 终生限购，主打『永久解锁第二行军队列』—— 直接把同时出征的部队数从 1 队提到 2 队，是采集 / 集结 / 探图的硬功能解锁。",
+        coreItems: [
+          "第二行军队列（永久）",
+          "钻石",
+          "英雄碎片",
+          "金券"
+        ],
+        cap: "1 档，R1，¥22，终生限购 1 次",
+        note: "对 R1/R2 来说额外行军队列是中期最大的吸引点，采集/集结/探图的硬功能解锁。"
+      },
+      {
+        id: "pack-monthly-weekly-card",
+        group: "premium",
+        title: "月卡 / 周卡",
+        icon: "卡",
+        color: "green",
+        startDay: 1,
+        endDay: 100,
+        priority: "高",
+        images: ["礼包库/04月卡周卡/月卡周卡-第1天.jpg", "礼包库/04月卡周卡/月卡周卡-第106天-1.jpg", "礼包库/04月卡周卡/月卡周卡-第106天-2.jpg"],
+        summary: "储值中心常驻 Tab，月卡/周卡体系会随游戏天数持续扩充：新系统解锁（宠物/装备）时同步推出对应专属周卡；旧卡随资源贬值升级收益（超值月卡每日钻石 D1 的 ×200 → D106 的 ×300，装备宝箱 ×50 → ×100，性价比 5565% → 7127%）。D106 共 5 张：超值月卡 + 黄金周卡 + 宠物周卡 + 装备周卡 + 时间周卡。",
+        coreItems: [
+          "钻石（立得 + 每日）",
+          "Auto功能解锁",
+          "每日加速",
+          "每日装备宝箱",
+          "宠物食物（宠物周卡）",
+          "装备碎片（装备周卡）"
+        ],
+        cap: "D1：2 档，月卡 ¥68 / 时间周卡 ¥30；D106：5 档，超值月卡 ¥68 / 各周卡 ¥30，R1–R2，到期续费",
+        note: "算过收益率：月卡/周卡 ≈ 超值的定期活动 ≈ 2 倍高级礼包收益 ≈ 4 倍常规礼包收益。所以对任意付费玩家来说，月卡和一些刚需周卡都是永续的选择。"
+      },
+      {
+        id: "pack-glory-fund",
+        group: "premium",
+        title: "荣耀基金",
+        icon: "基",
+        color: "yellow",
+        startDay: 1,
+        endDay: 100,
+        priority: "高",
+        images: ["礼包库/05荣耀基金/荣耀基金.jpg"],
+        summary: "储值中心常驻 Tab，机制是『城镇等级解锁式基金』—— ¥128 一次性买断后，每升一级城镇中心（lv.6 / 8 / 10 / 12 / 14 / 16 …）就解锁一档『史诗』轨道的钻石 + 钥匙 + 装备宝箱奖励，免费轨永久存在，付费轨买基金后才能领，标注 3700% 性价比。",
+        coreItems: [
+          "钻石（立得）",
+          "钻石（城镇等级分批解锁）",
+          "钥匙",
+          "装备宝箱",
+          "加速"
+        ],
+        cap: "1 档，R1–R2，¥128，终生限购 1 次",
+        note: "一次性给很多钻石，在前期资源稀缺时非常有用，是前期性价比不错的单次大额付费。"
+      },
+      {
+        id: "pack-regular-gifts",
+        group: "premium",
+        title: "常规礼包",
+        icon: "常",
+        color: "red",
+        startDay: 1,
+        endDay: 100,
+        priority: "中",
+        images: [
+          "礼包库/06常规礼包/常规礼包-第1天-01.jpg",
+          "礼包库/06常规礼包/常规礼包-第1天-02.jpg",
+          "礼包库/06常规礼包/常规礼包-第106天-01.jpg",
+          "礼包库/06常规礼包/常规礼包-第106天-02.jpg",
+          "礼包库/06常规礼包/常规礼包-第106天-03.jpg",
+          "礼包库/06常规礼包/常规礼包-第106天-04.jpg",
+          "礼包库/06常规礼包/常规礼包-第106天-05.jpg",
+          "礼包库/06常规礼包/常规礼包-第106天-06.jpg",
+          "礼包库/06常规礼包/常规礼包-第106天-07.jpg",
+          "礼包库/06常规礼包/常规礼包-第106天-08.jpg"
+        ],
+        summary: "储值中心【常规礼包】Tab，每款标配 2,500 钻 / HK$38，每日限购 1 次，每日刷新；礼包数量随新系统解锁持续扩容（D1 共 5 款，D106 已达 20+ 款），两款终生英雄礼包随天数同步提价。",
+        coreItems: [
+          "钻石（各包标配 2,500，终生限购英雄包为 5,000–10,000）",
+          "碎片·杰贝尔（D1 ×10；D106 ×20）",
+          "技能书 / 进阶技能书",
+          "建造 / 研究加速",
+          "钥匙（飞速成长）",
+          "英雄经验宝箱",
+          "宠物食物 / 培育手册 / 活力药剂 / 晋升奖牌（D106+）",
+          "宝石图纸 / 宝石工艺书 / 强化卷轴（D106+）",
+          "装备螺丝 / 英雄装备宝箱（D106+）",
+          "金币 / 移民授权书 / 四类资源（D106+）"
+        ],
+        cap: "每组共 5 档：¥30 / ¥68 / ¥128 / ¥328 / ¥648，每日刷新（从 ¥30 起买）；全买一组 ≈ ¥1,202；D1 共 5 组，D106 共 20+ 组；R1–R3 均有入场点，R3 可每日全扫（5组全买 ≈ ¥6,010/天）",
+        note: "绝对不划算的礼包，但对于 R3 来说前期几乎没有更好的付费方式，只能把常规礼包买一买；如果要冲 VIP 等级，可能还会一次性全扫掉当日所有款。"
+      },
+      {
+        id: "pack-diamond-recharge",
+        group: "premium",
+        title: "钻石充值",
+        icon: "钻",
+        color: "orange",
+        startDay: 1,
+        endDay: 100,
+        priority: "高",
+        images: ["礼包库/07钻石充值/钻石充值.jpg"],
+        summary: "储值中心【钻石商城】Tab，6 档直购钻石，首次购买每档均享『双倍钻石』回馈（即首购实得钻石翻倍），全档限购 1 次。档位：500钻/¥6、2500/¥30、5000/¥68、10000/¥128、25000/¥328、50000/¥648（首购均双倍）。",
+        coreItems: [
+          "钻石（首购双倍）"
+        ],
+        cap: "6 档，R1–R3，¥6–¥648，各档终生首购双倍",
+        note: "（尚未填写体验记录……）"
+      },
+      {
+        id: "pack-immortal-legend",
+        group: "premium",
+        title: "不朽传说礼包（弹屏）",
+        icon: "传",
+        color: "yellow",
+        startDay: 1,
+        endDay: 100,
+        priority: "中",
+        images: ["礼包库/08弹屏礼包（充值后出现）/不朽传说礼包.jpg"],
+        summary: "付费后弹出的每日刷新礼包组，共 5 档（¥30 / ¥68 / ¥128 / ¥328 / ¥648），可逐档购买；主打传说英雄碎片 + 传说技能书，每日从 ¥30 档重置。",
+        coreItems: [
+          "传说英雄碎片（通用）",
+          "传说技能书",
+          "英雄经验",
+          "钻石",
+          "VIP经验"
+        ],
+        cap: "5 档：¥30 / ¥68 / ¥128 / ¥328 / ¥648，每日刷新（从 ¥30 起买）；全买 ≈ ¥1,202 / 天；R1–R3",
+        note: "获得第一个橙色英雄后弹出，不但限时，而且每招募一个新传说英雄都会再弹一次。第二个弹出的时候意识到有点贵就没再买了。"
+      },
+      {
+        id: "pack-daily-deal",
+        group: "premium",
+        title: "每日特惠（充值后出现）",
+        icon: "惠",
+        color: "yellow",
+        startDay: 1,
+        endDay: 100,
+        priority: "中",
+        images: ["礼包库/09每日特惠（充值后出现）/每日特惠-第1天.jpg"],
+        summary: "首次充值后解锁的每日限时优惠入口，每日刷新，3 档单独购买或一键打包（¥30 买全，原价 ¥36）。每档均为每日限购 1 次，倒计时约 14 小时，内容覆盖英雄碎片 / 经验药水 / 加速 / 资源宝箱。",
+        coreItems: [
+          "钻石",
+          "英雄碎片宝箱",
+          "英雄经验",
+          "加速",
+          "资源宝箱"
+        ],
+        cap: "3 档 + 打包，R1–R2，¥6 / ¥12 / ¥18 / 打包 ¥30，每日限购 1 次",
+        note: "应该是本游戏付费率最高的礼包之一，收益率≈周卡，定向投当期强推的英雄碎片，外加符合定价的加速时长。前期每天都会一次性把 3 个档全买掉。"
+      },
+
+      // —— 常规活动 / 周期玩法 ——
+      {
+        id: "event-growth-path",
+        group: "regular",
+        title: "成长之路",
+        icon: "成",
+        color: "white",
+        startDay: 1,
+        endDay: 7,
+        priority: "高",
+        images: ["活动库/01成长之路/成长之路1.jpg"],
+        summary: "新服 7 日成长任务活动，按『天数 1-5』顺序解锁任务页，每日通过『每日登录 / 城镇中心升级 / 讨伐叛军』累计积分，120 积分上限可兑换稀有英雄琴科。",
+        coreItems: [
+          "稀有英雄·琴科",
+          "英雄碎片",
+          "招募券",
+          "加速",
+          "任务勋章"
+        ],
+        cap: "免费活动；间接驱动 R1–R2 购加速 / 资源礼包冲任务进度",
+        note: "（尚未填写体验记录……）"
+      },
+      {
+        id: "event-adventure-star",
+        group: "regular",
+        title: "冒险之星",
+        icon: "冒",
+        color: "green",
+        startDay: 2,
+        endDay: 5,
+        priority: "中",
+        images: ["活动库/05冒险之星（第二天活动）/冒险之星.jpg"],
+        summary: "D2 开启的短期任务活动，位于【超值活动】入口。机制是同时激活两位英雄并完成目标任务即可领取奖励，活动分多个档位，逐级提升这两位英雄的星级要求。",
+        coreItems: [
+          "钻石×500",
+          "钥匙×10",
+          "技能书×5",
+          "进阶技能书×5"
+        ],
+        cap: "免费活动；麋鹿骑士（免费英雄）星级容易拉满，快速达标后杰贝尔的星级缺口就会凸显——相当于把免费英雄的进度转化为购买杰贝尔礼包/VIP的动力，一次活动收两份付费意愿",
+        note: "一个是免费获取的英雄，一个是礼包/VIP的英雄；免费的星级很好升，升上去之后VIP这个英雄的星级不够就会很想买礼包，相当于两份收益。"
+      },
+
+      {
+        id: "event-seven-day-signin",
+        group: "regular",
+        title: "七日签到",
+        icon: "签",
+        color: "white",
+        startDay: 1,
+        endDay: 7,
+        priority: "高",
+        images: ["活动库/02七日签到/七日签到.jpg"],
+        summary: "D1-D7 每日登录签到送奖，弹窗主推『7 日签到送传说英雄 SSR·杰贝尔』，把日活留存与英雄破冰捆绑，是新手期最稳的免费英雄来源。",
+        coreItems: [
+          "SSR英雄·杰贝尔",
+          "英雄碎片",
+          "钻石",
+          "钥匙",
+          "技能书",
+          "装备碎片"
+        ],
+        cap: "免费签到；种草后续碎片缺口，间接引导 R1 购买碎片礼包",
+        note: "（尚未填写体验记录……）"
+      },
+      {
+        id: "event-newborn-festival",
+        group: "regular",
+        title: "新生的庆典",
+        icon: "庆",
+        color: "green",
+        startDay: 1,
+        endDay: 7,
+        priority: "高",
+        images: ["活动库/03新生的庆典/新生的庆典.jpg"],
+        summary: "新手限定的『实力（战力）冲分礼包墙』，按战力档位（30W / 50W / 100W / 150W / 200W …直至 400W）解锁宝箱，奖励标注钻石价值（700 / 1.8K / 3.1K / 4.4K / 6.7K …），是新服第一周最直接的付费转化页面。",
+        coreItems: [
+          "钻石",
+          "加速",
+          "资源"
+        ],
+        cap: "免费宝箱（战力达标解锁）；间接驱动 R1–R2 购礼包冲战力档位",
+        note: "（尚未填写体验记录……）"
+      },
+      {
+        id: "event-wilderness-trial",
+        group: "regular",
+        title: "荒野的试炼",
+        icon: "荒",
+        color: "green",
+        startDay: 5,
+        endDay: 12,
+        priority: "高",
+        images: [
+          "活动库/04荒野的试炼/荒野的试炼01.jpg",
+          "活动库/04荒野的试炼/荒野的试炼02.jpg"
+        ],
+        summary: "限时联盟集结活动，主推超级佣兵『狄安娜』（降低体力消耗 + 增加出征速度）。机制：击败野兽掉【断爪】→ 用【断爪】召唤梦魇【恐狼】→ 集结击杀，完成挑战的玩家解锁狄安娜入城。",
+        coreItems: [
+          "超级佣兵·狄安娜（永久）",
+          "英雄经验",
+          "训练加速",
+          "资源宝箱"
+        ],
+        cap: "免费活动；体力耗尽驱动 R1 购买体力 / 资源礼包",
+        note: "狄安娜降低打怪体力消耗，对 R0/R1 比较重要；R2 及以上体力几乎用不完，不太在意每天多消耗多少体力，对这个活动的关注度相应降低。"
+      },
+      {
+        id: "event-strongest-lord",
+        group: "regular",
+        title: "最强领主",
+        icon: "强",
+        color: "red",
+        startDay: 5,
+        endDay: 9,
+        priority: "高",
+        images: [
+          "活动库/11最强领主/1最强领主-主界面-第4天.jpg",
+          "活动库/11最强领主/最强领主-第1天.jpg",
+          "活动库/11最强领主/最强领主-第2天.jpg",
+          "活动库/11最强领主/最强领主-第3天.jpg",
+          "活动库/11最强领主/最强领主-第5天.jpg",
+          "活动库/11最强领主/最强领主-总排名奖励.jpg"
+        ],
+        summary: "5 天周期的积分冲榜活动，分 5 个阶段每日切换主题（城镇建设 / 招募 / 击杀野兽…），按个人积分领取阶段奖励，活动结束后总排名前 1000 邮件发放奖励，本期还赠送 SSR 英雄碎片。",
+        coreItems: [
+          "SSR英雄碎片",
+          "钻石",
+          "加速",
+          "资源宝箱",
+          "技能书"
+        ],
+        cap: "免费参与；冲榜驱动 R2–R3 大额付费，总榜前 1000 有奖，榜首最高 8 万钻",
+        note: "前期最重要的活动。早期总排行奖励赠送高级 VIP 英雄·阿玛迪斯，所以 R3 前期主要竞争的就是这个排名；投放的英雄奖励会随英雄世代版本迭代而更换。"
+      },
+
+      // —— 超值活动 / 付费礼包（充值后解锁）——
+      {
+        id: "pack-recharge-reward",
+        group: "premium",
+        title: "储值有礼（充值后出现）",
+        icon: "储",
+        color: "yellow",
+        startDay: 1,
+        endDay: 100,
+        priority: "中",
+        images: [
+          "礼包库/10储值有礼（充值后出现）/储值有利-60.jpg",
+          "礼包库/10储值有礼（充值后出现）/储值有利-150.jpg",
+          "礼包库/10储值有礼（充值后出现）/储值有利-240.jpg",
+          "礼包库/10储值有礼（充值后出现）/储值有利-360.jpg",
+          "礼包库/10储值有礼（充值后出现）/储值有利-600.jpg"
+        ],
+        summary: "首次充值后解锁的累计充值积分奖励体系，共 5 档里程碑，以『充值积分』衡量累计消费深度，每档解锁一次性大额道具奖励，最高档价值 200,000 钻。底部标签页可切换查看各档进度与所需积分缺口，驱动玩家持续为补足积分而充值。",
+        coreItems: [
+          "传说英雄",
+          "传说英雄装备",
+          "英雄碎片",
+          "技能书",
+          "钻石",
+          "限定装饰"
+        ],
+        cap: "5 档积分里程碑，R1–R3，累计消费达 ¥60 / ¥150 / ¥240 / ¥360 / ¥600 各解锁一档奖励（1积分≈¥0.012）",
+        note: "新手累充活动，持续很久所以慢慢充就自然满了。不会为了这个活动专门充值，而是买其他礼包时顺带达成了档位，奖励到手的那一刻感觉赚到了。"
+      }
+    ];
+
+    // ============================================================
+    // 渲染
+    // ============================================================
+    const els = {
+      gantt: document.getElementById("gantt"),
+      modalBackdrop: document.getElementById("modalBackdrop"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalPills: document.getElementById("modalPills"),
+      modalBody: document.getElementById("modalBody"),
+      closeModalBtn: document.getElementById("closeModalBtn"),
+      lightbox: document.getElementById("lightbox"),
+      lbStage: document.getElementById("lbStage"),
+      lbImage: document.getElementById("lbImage"),
+      lbCounter: document.getElementById("lbCounter"),
+      lbNav: document.getElementById("lbNav"),
+      lbPrev: document.getElementById("lbPrev"),
+      lbNext: document.getElementById("lbNext"),
+      lbZoomIn: document.getElementById("lbZoomIn"),
+      lbZoomOut: document.getElementById("lbZoomOut"),
+      lbReset: document.getElementById("lbReset"),
+      lbClose: document.getElementById("lbClose"),
+      gridOverlay: document.getElementById("gridOverlay"),
+      goTitle: document.getElementById("goTitle"),
+      goMeta: document.getElementById("goMeta"),
+      goGrid: document.getElementById("goGrid"),
+      goClose: document.getElementById("goClose")
+    };
+
+    function imgSrc(path) {
+      // 把相对路径编码成浏览器可识别的 URL（处理中文目录）
+      return encodeURI(path);
+    }
+
+    function imgName(path) {
+      const base = path.split(/[\\/]/).pop() || path;
+      return base.replace(/\.[^.]+$/, "");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function dayText(item) {
+      return item.startDay === item.endDay ? `D${item.startDay}` : `D${item.startDay}-D${item.endDay}`;
+    }
+
+    function clampDay(d) {
+      return Math.max(1, Math.min(TOTAL_DAYS, d));
+    }
+
+    function renderDayAxis() {
+      const cells = [];
+      for (let d = 1; d <= TOTAL_DAYS; d += 1) {
+        const isWeekStart = (d - 1) % 7 === 0;
+        const isWeekly = Math.floor((d - 1) / 7) % 2 === 0;
+        cells.push(`
+          <div class="day-cell ${isWeekStart ? "week-start" : ""} ${isWeekly ? "is-weekly" : ""}">
+            <strong>D${d}</strong>
+            <span>第 ${Math.floor((d - 1) / 7) + 1} 周</span>
+          </div>
+        `);
+      }
+      return `
+        <div class="gantt-corner">📅 服务器开服天数</div>
+        <div class="day-axis">${cells.join("")}</div>
+      `;
+    }
+
+    function renderGridCells(extraClass = "") {
+      const cells = [];
+      for (let d = 1; d <= TOTAL_DAYS; d += 1) {
+        const isWeekStart = (d - 1) % 7 === 0;
+        cells.push(`<div class="grid-cell ${isWeekStart ? "week-start" : ""}"></div>`);
+      }
+      return `<div class="row-grid ${extraClass}">${cells.join("")}</div>`;
+    }
+
+    function renderBar(item) {
+      const start = clampDay(item.startDay);
+      const end = clampDay(item.endDay);
+      const colStart = start;
+      const colEnd = end + 1; // grid line
+      return `
+        <button class="bar color-${escapeHtml(item.color || "yellow")}"
+                style="grid-column: ${colStart} / ${colEnd};"
+                data-item-id="${escapeHtml(item.id)}"
+                title="${escapeHtml(item.title)} (${dayText(item)})">
+          <span class="bar-icon">${escapeHtml(item.icon || "·")}</span>
+          <span class="bar-title">${escapeHtml(item.title)}</span>
+          <span class="bar-days">${escapeHtml(dayText(item))}</span>
+        </button>
+      `;
+    }
+
+    function renderRow(item, alt) {
+      // 行 = 左侧 label + 右侧 grid（grid 内放 bar）
+      return `
+        <div class="row-label">
+          <span class="row-icon" style="background: var(--bar-${item.color || "yellow"}-2);">${escapeHtml(item.icon || "·")}</span>
+          <span>${escapeHtml(item.title)}</span>
+        </div>
+        <div class="row-grid ${alt ? "alt" : ""}">
+          ${gridCellsHtml}
+          ${renderBar(item)}
+        </div>
+      `;
+    }
+
+    // 预生成网格背景单元格
+    let gridCellsHtml = "";
+    (function buildGridCells() {
+      const arr = [];
+      for (let d = 1; d <= TOTAL_DAYS; d += 1) {
+        const isWeekStart = (d - 1) % 7 === 0;
+        arr.push(`<div class="grid-cell ${isWeekStart ? "week-start" : ""}" style="grid-row: 1; grid-column: ${d};"></div>`);
+      }
+      gridCellsHtml = arr.join("");
+    })();
+
+    // ============================================================
+    // 付费分层参考数据（R1/R2/R3 · 每天理论消费）
+    // ============================================================
+    function makeBudgetRows() {
+      // tracker：同步记录金额与明细
+      function makeTracker() {
+        const spend = new Array(14).fill(0);
+        const breakdown = Array.from({length: 14}, () => []);
+        function add(i, amt, label) {
+          if (i < 0 || i >= 14) return;
+          spend[i] += amt;
+          breakdown[i].push({ label, amt });
+        }
+        return { spend, breakdown, add };
+      }
+
+      const _cardMonthly = [0];    // 月卡¥68，D1
+      const _cardWeekly  = [0, 7]; // 时间周卡¥30，D1/D8
+
+      // R1 轻度付费：总计约 ¥350
+      const t1 = makeTracker();
+      t1.add(0, 162, "首充¥6 + 新手助力¥6 + 行军列队¥22 + 荣耀基金¥128");
+      _cardMonthly.forEach(i => t1.add(i, 68, "月卡"));
+      _cardWeekly.forEach(i  => t1.add(i, 30, "时间周卡"));
+      [6, 13].forEach(i      => t1.add(i, 30, "每日特惠"));
+
+      // R2 中度付费：总计约 ¥2,600
+      const t2 = makeTracker();
+      t2.add(0, 162, "首充¥6 + 新手助力¥6 + 行军列队¥22 + 荣耀基金¥128");
+      _cardMonthly.forEach(i => t2.add(i, 68, "月卡"));
+      _cardWeekly.forEach(i  => t2.add(i, 30, "时间周卡"));
+      for (let i = 0; i < 14; i++) t2.add(i, 30, "每日特惠");
+      for (let i = 0; i < 14; i++) t2.add(i, 30, "常规礼包（¥30 档）");
+      for (let i = 0; i < 14; i++) t2.add(i, 98, "不朽传说（¥30 + ¥68）");
+      t2.add(4, 30,  "VIP1 礼包");
+      t2.add(9, 68,  "VIP2 礼包");
+
+      // R3 重度付费：总计约 ¥34,600
+      const t3 = makeTracker();
+      for (let i = 0; i < 14; i++) t3.add(i, 30,   "每日特惠");
+      for (let i = 0; i < 14; i++) t3.add(i, 1202, "常规礼包（全 5 档）");
+      for (let i = 0; i < 14; i++) t3.add(i, 1202, "不朽传说（全 5 档）");
+      t3.add(0, 162, "首充¥6 + 新手助力¥6 + 行军列队¥22 + 荣耀基金¥128");
+      _cardMonthly.forEach(i => t3.add(i, 68, "月卡"));
+      _cardWeekly.forEach(i  => t3.add(i, 30, "时间周卡"));
+      t3.add(0, 30,  "VIP1 礼包");
+      t3.add(4, 68,  "VIP2 礼包");
+      t3.add(9, 128, "VIP3 礼包");
+
+      return [
+        { id: "budget-r1", group: "budget", title: "R1 轻度付费 · 理论日消费（总计约 ¥350）",    icon: "R1", color: "teal", dailySpend: t1.spend, dailyBreakdown: t1.breakdown },
+        { id: "budget-r2", group: "budget", title: "R2 中度付费 · 理论日消费（总计约 ¥2,600）",  icon: "R2", color: "blue", dailySpend: t2.spend, dailyBreakdown: t2.breakdown },
+        { id: "budget-r3", group: "budget", title: "R3 重度付费 · 理论日消费（总计约 ¥34,600）", icon: "R3", color: "red",  dailySpend: t3.spend, dailyBreakdown: t3.breakdown },
+      ];
+    }
+    const budgetRows = makeBudgetRows();
+
+    function renderBudgetRow(item, alt) {
+      const cells = item.dailySpend.map((val, idx) => {
+        const d = idx + 1;
+        const isWeekStart = (d - 1) % 7 === 0;
+        let cls = "budget-cell" + (isWeekStart ? " week-start" : "");
+        let txt = "";
+        const bk = item.dailyBreakdown && item.dailyBreakdown[idx];
+        const tipAttr = bk && bk.length
+          ? ` data-day="${d}" data-tip='${JSON.stringify(bk)}'` : "";
+        if (val > 0) {
+          txt = "¥" + val;
+          if      (val >= 1000) cls += " amt-huge";
+          else if (val >= 300)  cls += " amt-high";
+          else if (val >= 100)  cls += " amt-mid";
+          else                  cls += " amt-low";
+        }
+        return `<div class="${cls}"${tipAttr}>${txt}</div>`;
+      }).join("");
+      return `
+        <div class="row-label">
+          <span class="row-icon" style="background: var(--bar-${escapeHtml(item.color || "yellow")}-2);">${escapeHtml(item.icon)}</span>
+          <span>${escapeHtml(item.title)}</span>
+        </div>
+        <div class="budget-row-cells${alt ? " alt" : ""}">
+          ${cells}
+        </div>
+      `;
+    }
+
+    function renderGantt() {
+      const parts = [];
+      // 顶部表头
+      parts.push(renderDayAxis());
+
+      let altIndex = 0;
+      GROUPS.forEach(group => {
+        if (group.id === "budget") return; // 单独处理，见下方
+        const items = seedData
+          .filter(it => it.group === group.id)
+          .sort((a, b) => a.startDay - b.startDay);
+        if (!items.length) return;
+
+        // 分组标题行
+        parts.push(`
+          <div class="group-header-label">${escapeHtml(group.title)}</div>
+          <div class="group-header-grid"></div>
+        `);
+
+        items.forEach(item => {
+          parts.push(renderRow(item, altIndex % 2 === 1));
+          altIndex += 1;
+        });
+      });
+
+      // 付费分层参考行（独立渲染，每格直接显示当日金额）
+      const budgetGroup = GROUPS.find(g => g.id === "budget");
+      if (budgetGroup) {
+        parts.push(`
+          <div class="group-header-label">${escapeHtml(budgetGroup.title)}</div>
+          <div class="group-header-grid"></div>
+        `);
+        budgetRows.forEach((item, i) => {
+          parts.push(renderBudgetRow(item, i % 2 === 1));
+        });
+      }
+
+      els.gantt.innerHTML = parts.join("");
+    }
+
+    let activeImages = [];
+    let activeImageIndex = 0;
+    let activeTitle = "";
+
+    function renderGallery(images) {
+      if (!images || !images.length) return "";
+      if (images.length === 1) {
+        return `
+          <div class="gallery">
+            <button type="button" class="gallery-card" data-action="open-single">
+              <img src="${escapeHtml(imgSrc(images[0]))}" alt="" />
+            </button>
+            <div class="gallery-hint">点击查看大图</div>
+          </div>
+        `;
+      }
+      const cover = images[0];
+      const second = images[1] || cover;
+      const third = images[2] || second;
+      return `
+        <div class="gallery">
+          <button type="button" class="gallery-stack" data-action="open-grid">
+            <div class="stack-card s-back-2"><img src="${escapeHtml(imgSrc(third))}" alt="" /></div>
+            <div class="stack-card s-back-1"><img src="${escapeHtml(imgSrc(second))}" alt="" /></div>
+            <div class="stack-card s-front"><img src="${escapeHtml(imgSrc(cover))}" alt="" /></div>
+            <span class="stack-badge">图集 · ${images.length} 张</span>
+          </button>
+          <div class="gallery-hint">点击展开图集</div>
+        </div>
+      `;
+    }
+
+    function openModal(itemId) {
+      const item = seedData.find(entry => entry.id === itemId);
+      if (!item) return;
+
+      const images = Array.isArray(item.images) ? item.images : [];
+      activeImages = images;
+      activeImageIndex = 0;
+      activeTitle = item.title;
+
+      els.modalPills.innerHTML = `
+        <span class="pill"><span class="legend-swatch swatch-${escapeHtml(item.color || "yellow")}"></span>${escapeHtml(item.title)}</span>
+        <span class="pill">${escapeHtml(dayText(item))}</span>
+        <span class="pill">优先级 ${escapeHtml(item.priority)}</span>
+      `;
+      els.modalTitle.textContent = item.title;
+
+      const galleryHtml = renderGallery(images);
+      els.modalBody.classList.toggle("no-gallery", !galleryHtml);
+      els.modalBody.innerHTML = `
+        ${galleryHtml}
+        <div class="info-col">
+          <section class="detail-box">
+            <h4>一句话结论</h4>
+            <p>${escapeHtml(item.summary || "待填")}</p>
+          </section>
+          <section class="detail-box">
+            <h4>主要投放内容</h4>
+            <ul class="item-list">
+              ${(item.coreItems || ["待填"]).map(value => `<li>${escapeHtml(value)}</li>`).join("")}
+            </ul>
+          </section>
+          <section class="detail-box">
+            <h4>付费坑 / 玩家层级</h4>
+            <p>${escapeHtml(item.cap || "待填")}</p>
+          </section>
+          ${item.levels ? `
+          <section class="detail-box">
+            <h4>VIP 升级门槛（累计消费 · 含 VIP1 起算）</h4>
+            <div class="level-grid">
+              <div class="level-grid-head"><span>等级</span><span>累计 Gems</span><span>估算 CNY</span><span>礼包售价</span></div>
+              ${item.levels.map(lv => `<div class="level-grid-row"><span>${escapeHtml(lv.vip)}</span><span>${escapeHtml(lv.gems)}</span><span>${escapeHtml(lv.cny)}</span><span>${escapeHtml(lv.packPrice || "—")}</span></div>`).join("")}
+            </div>
+          </section>` : ""}
+          <section class="note-box">
+            <h4>✏️ 主观感受</h4>
+            <p>${escapeHtml(item.note || "（尚未填写体验记录……）")}</p>
+          </section>
+        </div>
+      `;
+
+      els.modalBackdrop.classList.add("open");
+      els.modalBackdrop.setAttribute("aria-hidden", "false");
+      els.closeModalBtn.focus();
+    }
+
+    function closeModal() {
+      els.modalBackdrop.classList.remove("open");
+      els.modalBackdrop.setAttribute("aria-hidden", "true");
+    }
+
+    // ===== Lightbox（缩放 + 拖拽） =====
+    const lb = { scale: 1, tx: 0, ty: 0, dragging: false, lastX: 0, lastY: 0 };
+
+    function applyLbTransform() {
+      els.lbImage.style.transform = `translate(calc(-50% + ${lb.tx}px), calc(-50% + ${lb.ty}px)) scale(${lb.scale})`;
+    }
+
+    function resetLbView() {
+      lb.scale = 1;
+      lb.tx = 0;
+      lb.ty = 0;
+      applyLbTransform();
+    }
+
+    function showLbImage(index) {
+      if (!activeImages.length) return;
+      activeImageIndex = (index + activeImages.length) % activeImages.length;
+      els.lbImage.src = imgSrc(activeImages[activeImageIndex]);
+      els.lbCounter.textContent = `${activeImageIndex + 1} / ${activeImages.length}`;
+      els.lbNav.hidden = activeImages.length <= 1;
+      resetLbView();
+    }
+
+    function openLightbox(index) {
+      if (!activeImages.length) return;
+      els.lightbox.classList.add("open");
+      els.lightbox.setAttribute("aria-hidden", "false");
+      showLbImage(index);
+    }
+
+    function closeLightbox() {
+      els.lightbox.classList.remove("open");
+      els.lightbox.setAttribute("aria-hidden", "true");
+    }
+
+    function openGridOverlay() {
+      if (!activeImages.length) return;
+      els.goTitle.textContent = activeTitle || "图集";
+      els.goMeta.textContent = `共 ${activeImages.length} 张 · 点击查看大图`;
+      els.goGrid.innerHTML = activeImages.map((src, i) => `
+        <div class="grid-cell" data-grid-index="${i}">
+          <div class="grid-cell-image"><img src="${escapeHtml(imgSrc(src))}" alt="" /></div>
+          <div class="grid-cell-caption">${escapeHtml(imgName(src))}</div>
+        </div>
+      `).join("");
+      els.gridOverlay.classList.add("open");
+      els.gridOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeGridOverlay() {
+      els.gridOverlay.classList.remove("open");
+      els.gridOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function zoomBy(factor, cx, cy) {
+      const newScale = Math.min(8, Math.max(0.2, lb.scale * factor));
+      // 以视口中心做近似缩放（不强行实现指针中心缩放，避免与 translate(-50%,-50%) 叠加复杂）
+      lb.scale = newScale;
+      applyLbTransform();
+    }
+
+    function bindLightbox() {
+      // 单图 → 直接 lightbox；多图 → 全屏图集陈列
+      els.modalBody.addEventListener("click", event => {
+        const trigger = event.target.closest("[data-action]");
+        if (!trigger) return;
+        if (trigger.dataset.action === "open-single") {
+          openLightbox(0);
+        } else if (trigger.dataset.action === "open-grid") {
+          openGridOverlay();
+        }
+      });
+
+      // 图集 → 点某张 → lightbox
+      els.goGrid.addEventListener("click", event => {
+        const cell = event.target.closest(".grid-cell");
+        if (!cell) return;
+        openLightbox(Number(cell.dataset.gridIndex || 0));
+      });
+      els.goClose.addEventListener("click", closeGridOverlay);
+      els.gridOverlay.addEventListener("click", event => {
+        if (event.target === els.gridOverlay) closeGridOverlay();
+      });
+
+      // 滚轮缩放
+      els.lbStage.addEventListener("wheel", event => {
+        event.preventDefault();
+        const factor = event.deltaY < 0 ? 1.15 : 1 / 1.15;
+        zoomBy(factor);
+      }, { passive: false });
+
+      // 拖拽平移
+      els.lbStage.addEventListener("mousedown", event => {
+        if (event.button !== 0) return;
+        lb.dragging = true;
+        lb.lastX = event.clientX;
+        lb.lastY = event.clientY;
+        els.lbStage.classList.add("is-dragging");
+      });
+      window.addEventListener("mousemove", event => {
+        if (!lb.dragging) return;
+        lb.tx += event.clientX - lb.lastX;
+        lb.ty += event.clientY - lb.lastY;
+        lb.lastX = event.clientX;
+        lb.lastY = event.clientY;
+        applyLbTransform();
+      });
+      window.addEventListener("mouseup", () => {
+        lb.dragging = false;
+        els.lbStage.classList.remove("is-dragging");
+      });
+
+      // 按钮 & 键盘
+      els.lbZoomIn.addEventListener("click", () => zoomBy(1.25));
+      els.lbZoomOut.addEventListener("click", () => zoomBy(1 / 1.25));
+      els.lbReset.addEventListener("click", resetLbView);
+      els.lbClose.addEventListener("click", closeLightbox);
+      els.lbPrev.addEventListener("click", () => showLbImage(activeImageIndex - 1));
+      els.lbNext.addEventListener("click", () => showLbImage(activeImageIndex + 1));
+
+      // 点击舞台空白（非按钮）关闭
+      els.lightbox.addEventListener("click", event => {
+        if (event.target === els.lbStage || event.target === els.lightbox) closeLightbox();
+      });
+
+      document.addEventListener("keydown", event => {
+        if (els.lightbox.classList.contains("open")) {
+          if (event.key === "Escape") closeLightbox();
+          else if (event.key === "ArrowLeft") showLbImage(activeImageIndex - 1);
+          else if (event.key === "ArrowRight") showLbImage(activeImageIndex + 1);
+          return;
+        }
+        if (els.gridOverlay.classList.contains("open") && event.key === "Escape") {
+          closeGridOverlay();
+        }
+      });
+    }
+
+    function bindEvents() {
+      document.addEventListener("click", event => {
+        const trigger = event.target.closest("[data-item-id]");
+        if (trigger) openModal(trigger.dataset.itemId);
+      });
+      els.closeModalBtn.addEventListener("click", closeModal);
+      els.modalBackdrop.addEventListener("click", event => {
+        if (event.target === els.modalBackdrop) closeModal();
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape"
+          && !els.lightbox.classList.contains("open")
+          && !els.gridOverlay.classList.contains("open")) closeModal();
+      });
+    }
+
+    function bindDragScroll() {
+      const scroller = document.querySelector(".gantt-scroll");
+      if (!scroller) return;
+      const DRAG_THRESHOLD = 5; // px，超过才进入拖拽模式，否则视为普通点击
+      let pressed = false;
+      let dragging = false;
+      let startX = 0;
+      let startY = 0;
+      let startLeft = 0;
+      let startTop = 0;
+
+      scroller.addEventListener("mousedown", event => {
+        if (event.button !== 0) return;
+        pressed = true;
+        dragging = false;
+        startX = event.clientX;
+        startY = event.clientY;
+        startLeft = scroller.scrollLeft;
+        startTop = scroller.scrollTop;
+        // 不在 mousedown 时 preventDefault / 加 is-dragging，
+        // 等真正移动超过阈值后再切到拖拽模式，避免吞掉按钮 click
+      });
+      window.addEventListener("mousemove", event => {
+        if (!pressed) return;
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
+        if (!dragging) {
+          if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+          dragging = true;
+          scroller.classList.add("is-dragging");
+        }
+        scroller.scrollLeft = startLeft - dx;
+        scroller.scrollTop = startTop - dy;
+        event.preventDefault();
+      });
+      window.addEventListener("mouseup", () => {
+        if (!pressed) return;
+        pressed = false;
+        if (dragging) {
+          scroller.classList.remove("is-dragging");
+          // 拖拽产生的 click 拦掉，避免误打开弹窗
+          const blockOnce = ev => {
+            ev.stopPropagation();
+            ev.preventDefault();
+          };
+          scroller.addEventListener("click", blockOnce, { capture: true, once: true });
+          // 兜底：若浏览器不派发 click（拖出元素外），下一帧自动取消监听
+          setTimeout(() => scroller.removeEventListener("click", blockOnce, { capture: true }), 0);
+        }
+        dragging = false;
+      });
+    }
+
+    bindEvents();
+    bindLightbox();
+    renderGantt();
+    bindDragScroll();
+
+    // ===== 付费明细气泡 =====
+    (function () {
+      const tip = document.getElementById("budgetTip");
+      const gantt = document.getElementById("gantt");
+
+      gantt.addEventListener("mouseover", function (e) {
+        const cell = e.target.closest("[data-tip]");
+        if (!cell) return;
+        const day = cell.dataset.day;
+        const items = JSON.parse(cell.dataset.tip);
+        const total = items.reduce((s, x) => s + x.amt, 0);
+        let html = `<div class="budget-tip-day">D${day} · 消费明细</div>`;
+        items.forEach(x => {
+          html += `<div class="budget-tip-row"><span>${x.label}</span><span>¥${x.amt.toLocaleString()}</span></div>`;
+        });
+        html += `<div class="budget-tip-total">合计 ¥${total.toLocaleString()}</div>`;
+        tip.innerHTML = html;
+        tip.style.display = "block";
+      });
+
+      gantt.addEventListener("mousemove", function (e) {
+        if (tip.style.display === "none") return;
+        const ox = e.clientX + 16, oy = e.clientY + 16;
+        const tw = tip.offsetWidth, th = tip.offsetHeight;
+        tip.style.left = (ox + tw > window.innerWidth  ? e.clientX - tw - 10 : ox) + "px";
+        tip.style.top  = (oy + th > window.innerHeight ? e.clientY - th - 10 : oy) + "px";
+      });
+
+      gantt.addEventListener("mouseout", function (e) {
+        const cell = e.target.closest("[data-tip]");
+        if (cell && !cell.contains(e.relatedTarget)) tip.style.display = "none";
+      });
+    })();
+  </script>
+</body>
+</html>
